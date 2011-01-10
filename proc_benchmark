@@ -12,6 +12,8 @@ my $do_benchans = 1;
 my $do_latest = 1;
 my $fld_org = "ORG";
 my $fld_imagepath = "IMAGEPATH";
+my $fld_answers = "ANSWERS";
+my $fld_testid = "TEST_ID";
 my $path_before_sch = "c:/grading//";
 my $silent = 0;
 my $dbg = 0;
@@ -146,11 +148,6 @@ while ($line = <INPUTFILE>) {
     }
 
 
-#print STDERR "---$numlines ";
-#while ( (my $k, my $v) = each(%linedata) ) {
-#    print STDERR "$k:$v ";
-#}
-#print STDERR "\n";
 
     ##
     ## use only if it is the most recent scan
@@ -161,23 +158,32 @@ while ($line = <INPUTFILE>) {
     ##
     ## add ORG field
     ##
-    if ($linedata{$fld_imagepath} =~ /$path_before_sch([A-Z]{3,4})/) {
-        $linedata{$fld_org} = $orglookup{$1};        
+    if ($do_org) {
+        if ($linedata{$fld_imagepath} =~ /$path_before_sch([A-Z]{3,4})/) {
+            $linedata{$fld_org} = $orglookup{$1};        
+        }
+        else {
+            $linedata{$fld_org} = "";
+        }
     }
-    else {
-        $linedata{$fld_org} = "";
-    }
-#print STDERR "---$numlines ";
-#while ( (my $k, my $v) = each(%linedata) ) {
-#    print STDERR "$k:$v ";
-#}
-#print STDERR "\n";
+        
+    
     
     ##
     ## trim answers to just use benchmark (district) answers
     ##
+    if ($do_benchans) {
+        my @trimmedanswers = split(/\,/, $linedata{$fld_answers},
+                               $testinfohash{$linedata{$fld_testid}} + 1);
+        pop(@trimmedanswers);
+        $linedata{$fld_answers} = join(',',@trimmedanswers);    
+    }
     
-    
+#print  "---$numlines ";
+#while ( (my $k, my $v) = each(%linedata) ) {
+#    print "$k:$v ";
+#}
+#print "\n";
     
     ##
     ## write processed results to new output file
