@@ -1,0 +1,143 @@
+#!/usr/bin/perl -w
+use warnings;
+use strict;
+use Getopt::Long;
+
+
+## setup defaults
+my $thisisme = "proc_benchmark";
+my $outfile = $thisisme . ".out." . mytimestamp() . ".txt";
+my $do_org = 1;
+my $do_benchans = 1;
+my $do_latest = 1;
+my $silent = 0;
+my $dbg = 0;
+
+my $usage = <<END;
+$thisisme: process the ACI.BENCHMARK database for exporting to use in DAR Tools
+
+usage: $thisisme [OPTIONS] INPUT_FILE
+
+OPTIONS:
+    --out <OUTFILE>     use <OUTFILE> as the output file
+                        (default is $outfile)
+                        
+    --info <INFO_FILE>  <INFO_FILE> contains the number of
+                        benchmark (common) questions for each test;
+                        format is <TEST_ID> <NUM_QUESTIONS> on each line;
+                        not required if "--benchans off" is used
+    
+    --org [on|off]      add the ORG field (on by default)
+    
+    --benchans [on|off] trim the ANSWERS field to just the number of
+                        answers defined for the benchmark (common)
+                        portion of the test; TEST_INFO_FILE required
+                        (on by default)
+                        
+    --latest [on|off]   search for and use only the most recent
+                        entry based on DATE_SCANNED (on by default, but
+                        requires extra processing time)
+                        
+
+INPUT_FILE              file to be processed; an output of the
+                        ACI.BENCHMARK data table
+                        
+END
+
+## other local variables
+my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp);
+
+
+##
+## check for arguments
+##
+if ($#ARGV == -1) {
+    print STDERR $usage;
+    exit -1;
+}
+
+##
+## read in the switches if there are any
+##
+GetOptions ('out:s' => \$outfile,
+            'info:s' => \$testinfofile,
+            'org:s' => \$tmp_org,
+            'benchans:s' => \$tmp_benchans,
+            'latest:s' => \$tmp_latest,
+            'help|h|?' => \$showhelp,
+            'silent' => \$silent,
+            'debug' => \$dbg);
+if ($showhelp) {
+    print STDERR $usage;
+    exit -1;
+}
+if ($tmp_org == "off") {
+    $do_org = 0;
+}
+if ($tmp_benchans == "off") {
+    $do_benchans = 0;
+}
+if ($tmp_latest == "off") {
+    $do_latest = 0;
+}
+
+
+##
+## read in test info file
+##
+
+
+
+##
+## read in next line of benchmark file
+##
+
+
+
+##
+## use only if it is the most recent scan
+##
+
+
+
+##
+## add ORG field
+##
+
+
+
+##
+## trim answers to just use benchmark (district) answers
+##
+
+
+
+##
+## write processed results to new output file
+##
+
+
+
+#########################################
+##### functions
+#########################################
+
+#####
+## mytimestamp - returns a string with a nice timestamp in
+##      the format YYYYMMDDHHMMSS
+#####
+sub mytimestamp
+{
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
+    ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+                                                localtime(time);
+    
+    $year += 1900;
+    $mon++;
+    my $dmon = sprintf("%02d", $mon);
+    my $dmday = sprintf("%02d", $mday);
+    my $dhour = sprintf("%02d", $hour);
+    my $dmin = sprintf("%02d", $min);
+    my $dsec = sprintf("%02d", $sec);
+    return $year . $dmon . $dmday . $dhour . $dmin . $dsec;
+}
