@@ -59,8 +59,8 @@ if ($#ARGV == -1) {
 ##
 ## read in the switches if there are any
 ##
-GetOptions ('out:s' => \$outfile,
-            'info:s' => \$testinfofile,
+GetOptions ('out=s' => \$outfile,
+            'info=s' => \$testinfofile,
             'org:s' => \$tmp_org,
             'benchans:s' => \$tmp_benchans,
             'latest:s' => \$tmp_latest,
@@ -71,21 +71,41 @@ if ($showhelp) {
     print STDERR $usage;
     exit -1;
 }
-if ($tmp_org == "off") {
-    $do_org = 0;
+if ($tmp_org) {
+    if ($tmp_org == "off") {
+        $do_org = 0;
+    }
 }
-if ($tmp_benchans == "off") {
-    $do_benchans = 0;
+if ($tmp_benchans) {
+    if ($tmp_benchans == "off") {
+        $do_benchans = 0;
+    }
 }
-if ($tmp_latest == "off") {
-    $do_latest = 0;
+if ($tmp_latest) {
+    if ($tmp_latest == "off") {
+        $do_latest = 0;
+    }
 }
-
+unless ($silent) {
+    print STDERR " -processing file @ARGV\n";
+    if ($testinfofile) {print STDERR " -using test info file $testinfofile\n";}
+    print STDERR ($do_org ? " -adding " : " -not adding ");
+    print STDERR "ORG field\n";
+    print STDERR ($do_benchans ? " -trimming " : " -not trimming ");
+    print STDERR "ANSWERS field to benchmark (common) answers\n";
+    print STDERR ($do_latest ? " -using only " : " -not checking for ");
+    print STDERR "most recent scan entry\n";
+}
+                    
 
 ##
 ## read in test info file
 ##
-
+if ($do_benchans && !$testinfofile) {
+    print STDERR "\nERROR: test info file required when using option --benchans\n";
+    print STDERR "\nenter $thisisme -h for help\n\n";
+    die -1;
+}
 
 
 ##
