@@ -10,9 +10,12 @@ my $outfile = $thisisme . ".out." . mytimestamp() . ".txt";
 my $do_org = 1;
 my $do_benchans = 1;
 my $do_latest = 1;
-my $orgfieldname = "ORG";
+my $fld_org = "ORG";
+my $fld_imagepath = "IMAGEPATH";
+my $path_before_sch = "c:/grading//";
 my $silent = 0;
 my $dbg = 0;
+setuporghash();
 
 my $usage = <<END;
 $thisisme: process the ACI.BENCHMARK database for exporting to use in DAR Tools
@@ -49,7 +52,7 @@ END
 ## other local variables
 my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp,
     @rowfields, %testinfohash, $line, $fld, $val, @colheaders,
-    %linedata, $numlines);
+    %linedata, $numlines, %orglookup);
 
 
 ##
@@ -149,27 +152,36 @@ while ($line = <INPUTFILE>) {
 #}
 #print STDERR "\n";
 
-##
-## use only if it is the most recent scan
-##
-
-
-
-##
-## add ORG field
-##
-
-
-
-##
-## trim answers to just use benchmark (district) answers
-##
-
-
-
-##
-## write processed results to new output file
-##
+    ##
+    ## use only if it is the most recent scan
+    ##
+    
+    
+    
+    ##
+    ## add ORG field
+    ##
+    if ($linedata{$fld_imagepath} =~ /$path_before_sch([A-Z]{3,4})/) {
+        $linedata{$fld_org} = $orglookup{$1};        
+    }
+    else {
+        $linedata{$fld_org} = "";
+    }
+#print STDERR "---$numlines ";
+#while ( (my $k, my $v) = each(%linedata) ) {
+#    print STDERR "$k:$v ";
+#}
+#print STDERR "\n";
+    
+    ##
+    ## trim answers to just use benchmark (district) answers
+    ##
+    
+    
+    
+    ##
+    ## write processed results to new output file
+    ##
 
 
 }
@@ -209,4 +221,69 @@ sub mytimestamp
     my $dmin = sprintf("%02d", $min);
     my $dsec = sprintf("%02d", $sec);
     return $year . $dmon . $dmday . $dhour . $dmin . $dsec;
+}
+
+
+#####
+## setuporghash - sets up the %orglookup hash with the right data
+#####
+sub setuporghash
+{
+    $orglookup{"ACE"} = 144;
+    $orglookup{"AJH"} = 50;
+    $orglookup{"AKE"} = 135;
+    $orglookup{"ARAP"} = 101;
+    $orglookup{"BFE"} = 128;
+    $orglookup{"BHS"} = 5;
+    $orglookup{"BSE"} = 133;
+    $orglookup{"BWE"} = 122;
+    $orglookup{"CCE"} = 102;
+    $orglookup{"CGB"} = 145;
+    $orglookup{"CMLC"} = 6;
+    $orglookup{"DART"} = 127;
+    $orglookup{"DBE"} = 119;
+    $orglookup{"DVE"} = 103;
+    $orglookup{"FLA"} = 143;
+    $orglookup{"FMJH"} = 47;
+    $orglookup{"FRE"} = 120;
+    $orglookup{"GWHE"} = 104;
+    $orglookup{"HPE"} = 105;
+    $orglookup{"JHE"} = 129;
+    $orglookup{"LHE"} = 107;
+    $orglookup{"LHFC"} = 52;
+    $orglookup{"LHHS"} = 2;
+    $orglookup{"LHJH"} = 42;
+    $orglookup{"LJH"} = 49;
+    $orglookup{"MHE"} = 132;
+    $orglookup{"MOH"} = 108;
+    $orglookup{"MPE"} = 134;
+    $orglookup{"MST"} = 142;
+    $orglookup{"MTE"} = 115;
+    $orglookup{"NLE"} = 121;
+    $orglookup{"NRE"} = 109;
+    $orglookup{"NWHE"} = 110;
+    $orglookup{"OHE"} = 106;
+    $orglookup{"PCE"} = 123;
+    $orglookup{"PHJH"} = 51;
+    $orglookup{"PHS"} = 4;
+    $orglookup{"PWE"} = 125;
+    $orglookup{"RACA"} = 137;
+    $orglookup{"RHE"} = 111;
+    $orglookup{"RHS"} = 3;
+    $orglookup{"RLE"} = 130;
+    $orglookup{"RNJH"} = 45;
+    $orglookup{"RTE"} = 112;
+    $orglookup{"RWJH"} = 44;
+    $orglookup{"SCE"} = 118;
+    $orglookup{"SKY"} = 126;
+    $orglookup{"SRE"} = 124;
+    $orglookup{"STLT"} = 114;
+    $orglookup{"SVE"} = 113;
+    $orglookup{"TME"} = 146;
+    $orglookup{"WAL"} = 116;
+    $orglookup{"WRE"} = 117;
+    $orglookup{"WWJH"} = 48;
+    $orglookup{"YALE"} = 131;
+    
+    return 1;
 }
