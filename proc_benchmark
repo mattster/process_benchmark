@@ -10,6 +10,7 @@ my $outfile = $thisisme . ".out." . mytimestamp() . ".txt";
 my $do_org = 1;
 my $do_benchans = 1;
 my $do_latest = 1;
+my $orgfieldname = "ORG";
 my $silent = 0;
 my $dbg = 0;
 
@@ -40,13 +41,15 @@ OPTIONS:
                         
 
 INPUT_FILE              file to be processed; an output of the
-                        ACI.BENCHMARK data table
+                        ACI.BENCHMARK data table;
+                        *** must be TAB delimited ***
                         
 END
 
 ## other local variables
 my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp,
-    $curline, %testinfohash);
+    @rowfields, %testinfohash, $line, $fld, $val, @colheaders,
+    %linedata, $numlines);
 
 
 ##
@@ -124,8 +127,27 @@ if ($do_benchans) {
 ##
 ## read in next line of benchmark file
 ##
+open INPUTFILE, "<", $ARGV[0] or die
+        "*** Unable to open file $ARGV[0]: $!\n\n";
+
+# get the column names from the first row
+$line = <INPUTFILE>;
+@colheaders = split(/\t/, mychomp($line));
+
+# read in data rows
+while ($line = <INPUTFILE>) {
+    $numlines++;
+    @rowfields = split(/\t/, mychomp($line));
+    for (my $idx = 0; $idx < @colheaders; $idx++) {
+        $linedata{$colheaders[$idx]} = $rowfields[$idx];
+    }
 
 
+#print STDERR "---$numlines ";
+#while ( (my $k, my $v) = each(%linedata) ) {
+#    print STDERR "$k:$v ";
+#}
+#print STDERR "\n";
 
 ##
 ## use only if it is the most recent scan
@@ -149,6 +171,9 @@ if ($do_benchans) {
 ## write processed results to new output file
 ##
 
+
+}
+close INPUTFILE;
 
 
 #########################################
