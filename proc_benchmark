@@ -45,7 +45,8 @@ INPUT_FILE              file to be processed; an output of the
 END
 
 ## other local variables
-my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp);
+my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp,
+    $curline, %testinfohash);
 
 
 ##
@@ -101,10 +102,22 @@ unless ($silent) {
 ##
 ## read in test info file
 ##
-if ($do_benchans && !$testinfofile) {
-    print STDERR "\nERROR: test info file required when using option --benchans\n";
-    print STDERR "\nenter $thisisme -h for help\n\n";
-    die -1;
+if ($do_benchans) {
+    if (!$testinfofile) {
+        print STDERR
+            "\n**** ERROR: test info file required when using option --benchans\n";
+        print STDERR "\nenter $thisisme -h for help\n\n";
+        die -1;
+    }
+    open TESTINFOFILE, "<", $testinfofile or die
+            "*** Unable to open file $testinfofile: $!\n\n";
+    while (<TESTINFOFILE>) {
+        mychomp($_);
+        if ($_ =~ /^(.*)[\t]+([0-9]+)$/) {
+            $testinfohash{$1} = $2;
+        }
+    }
+    close TESTINFOFILE;
 }
 
 
@@ -141,6 +154,17 @@ if ($do_benchans && !$testinfofile) {
 #########################################
 ##### functions
 #########################################
+
+#####
+## mychomp - remove CR and/or LF / NL; not sure why chomp
+##      doesn't work here, maybe something to do with stupid Windows?
+#####
+sub mychomp
+{
+    $_[0] =~ s/[\n\r]+//;
+    return $_[0];
+}
+
 
 #####
 ## mytimestamp - returns a string with a nice timestamp in
