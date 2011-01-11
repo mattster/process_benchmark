@@ -118,6 +118,7 @@ if ($do_benchans) {
     close TESTINFOFILE;
 }
 
+
 ##
 ## open input and output files
 ##
@@ -179,11 +180,6 @@ while ($line = <INPUTFILE>) {
         $linedata{$fld_answers} = join(',',@trimmedanswers);    
     }
     
-#print  "---$numlines ";
-#while ( (my $k, my $v) = each(%linedata) ) {
-#    print "$k:$v ";
-#}
-#print "\n";
     
     ##
     ## write processed results to new output file
@@ -198,7 +194,7 @@ while ($line = <INPUTFILE>) {
     ##
     if ($numlines % 100 == 0) { print STDERR ".";}
     if ($numlines % 500 == 0) { print STDERR " ";}
-    if ($numlines % 10000 == 0) {print STDERR "\n";}
+    if ($numlines % 5000 == 0) {print STDERR " ($numlines)\n";}
 }
 print STDERR "\n";
 
