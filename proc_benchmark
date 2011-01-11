@@ -13,6 +13,7 @@ my $fld_org = "ORG";
 my $fld_imagepath = "IMAGEPATH";
 my $fld_answers = "ANSWERS";
 my $fld_testid = "TEST_ID";
+my $fld_putorgafter = "SCANNED_SEQUENCE";
 my $path_before_sch = "c:/grading//";
 my $silent = 0;
 my $dbg = 0;
@@ -49,7 +50,7 @@ END
 ## other local variables
 my ($testinfofile, $tmp_org, $tmp_benchans, $tmp_latest, $showhelp,
     @rowfields, %testinfohash, $line, $fld, $val, @colheaders,
-    %linedata, $numlines, %orglookup);
+    @colheadersout, %linedata, $numlines, %orglookup);
 
 
 ##
@@ -87,10 +88,11 @@ if ($tmp_benchans) {
 unless ($silent) {
     print STDERR " -processing file @ARGV\n";
     if ($testinfofile) {print STDERR " -using test info file $testinfofile\n";}
+    print STDERR " -writing results to $outfile\n";
     print STDERR ($do_org ? " -adding " : " -not adding ");
     print STDERR "ORG field\n";
     print STDERR ($do_benchans ? " -trimming " : " -not trimming ");
-    print STDERR "ANSWERS field to benchmark (common) answers\n";
+    print STDERR "ANSWERS field to benchmark (common) answers\n\n";
 }
                     
 
@@ -127,6 +129,19 @@ open OUTFILE, ">", $outfile or die
 ## read in first line of benchmark file, get column names
 $line = <INPUTFILE>;
 @colheaders = split(/\t/, mychomp($line));
+
+## write column headers to outfile
+foreach (@colheaders) {
+    push(@colheadersout, $_);
+    if ($_ eq $fld_putorgafter) {
+        if ($do_org) {
+            push(@colheadersout, $fld_org);
+        }
+    }
+}
+print OUTFILE "@colheadersout\n";
+
+
 
 ##
 ## read in data rows
@@ -176,6 +191,7 @@ while ($line = <INPUTFILE>) {
 
 }
 close INPUTFILE;
+close OUTFILE;
 
 
 #########################################
