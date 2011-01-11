@@ -85,7 +85,8 @@ if ($tmp_benchans) {
         $do_benchans = 0;
     }
 }
-unless ($silent) {
+unless ($silent) { print STDERR " -processing rows in @ARGV\n"; }
+if ($dbg) {
     print STDERR " -processing file @ARGV\n";
     if ($testinfofile) {print STDERR " -using test info file $testinfofile\n";}
     print STDERR " -writing results to $outfile\n";
@@ -139,7 +140,7 @@ foreach (@colheaders) {
         }
     }
 }
-print OUTFILE "@colheadersout\n";
+print OUTFILE join("\t", @colheadersout, "\n");
 
 
 
@@ -187,11 +188,26 @@ while ($line = <INPUTFILE>) {
     ##
     ## write processed results to new output file
     ##
+    foreach (@colheadersout) {
+        print OUTFILE $linedata{$_} . "\t";
+    }
+    print OUTFILE "\n";
 
-
+    ##
+    ## print progress marker
+    ##
+    if ($numlines % 100 == 0) { print STDERR ".";}
+    if ($numlines % 500 == 0) { print STDERR " ";}
+    if ($numlines % 10000 == 0) {print STDERR "\n";}
 }
+print STDERR "\n";
+
 close INPUTFILE;
 close OUTFILE;
+
+print STDERR "processed $numlines rows, results in $outfile\n";
+
+exit 1;
 
 
 #########################################
