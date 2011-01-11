@@ -9,7 +9,6 @@ my $thisisme = "proc_benchmark";
 my $outfile = $thisisme . ".out." . mytimestamp() . ".txt";
 my $do_org = 1;
 my $do_benchans = 1;
-my $do_latest = 1;
 my $fld_org = "ORG";
 my $fld_imagepath = "IMAGEPATH";
 my $fld_answers = "ANSWERS";
@@ -40,10 +39,6 @@ OPTIONS:
                         portion of the test; TEST_INFO_FILE required
                         (on by default)
                         
-    --latest [on|off]   search for and use only the most recent
-                        entry based on DATE_SCANNED (on by default, but
-                        requires extra processing time)
-                        
 
 INPUT_FILE              file to be processed; an output of the
                         ACI.BENCHMARK data table;
@@ -72,7 +67,6 @@ GetOptions ('out=s' => \$outfile,
             'info=s' => \$testinfofile,
             'org:s' => \$tmp_org,
             'benchans:s' => \$tmp_benchans,
-            'latest:s' => \$tmp_latest,
             'help|h|?' => \$showhelp,
             'silent' => \$silent,
             'debug' => \$dbg);
@@ -90,11 +84,6 @@ if ($tmp_benchans) {
         $do_benchans = 0;
     }
 }
-if ($tmp_latest) {
-    if ($tmp_latest == "off") {
-        $do_latest = 0;
-    }
-}
 unless ($silent) {
     print STDERR " -processing file @ARGV\n";
     if ($testinfofile) {print STDERR " -using test info file $testinfofile\n";}
@@ -102,8 +91,6 @@ unless ($silent) {
     print STDERR "ORG field\n";
     print STDERR ($do_benchans ? " -trimming " : " -not trimming ");
     print STDERR "ANSWERS field to benchmark (common) answers\n";
-    print STDERR ($do_latest ? " -using only " : " -not checking for ");
-    print STDERR "most recent scan entry\n";
 }
                     
 
@@ -128,32 +115,29 @@ if ($do_benchans) {
     close TESTINFOFILE;
 }
 
-
 ##
-## read in next line of benchmark file
+## open input and output files
 ##
 open INPUTFILE, "<", $ARGV[0] or die
         "*** Unable to open file $ARGV[0]: $!\n\n";
+open OUTFILE, ">", $outfile or die
+        "*** Unable to create output file $outfile: $!\n\n";
+        
 
-# get the column names from the first row
+## read in first line of benchmark file, get column names
 $line = <INPUTFILE>;
 @colheaders = split(/\t/, mychomp($line));
 
-# read in data rows
+##
+## read in data rows
+##
 while ($line = <INPUTFILE>) {
     $numlines++;
     @rowfields = split(/\t/, mychomp($line));
     for (my $idx = 0; $idx < @colheaders; $idx++) {
         $linedata{$colheaders[$idx]} = $rowfields[$idx];
     }
-
-
-
-    ##
-    ## use only if it is the most recent scan
-    ##
-    
-    
+  
     
     ##
     ## add ORG field
